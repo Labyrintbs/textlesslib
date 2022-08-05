@@ -13,6 +13,7 @@ Hence, to save the array, use soundwrite and specify the datatype while saving t
 data, samplerate = soundfile.read('old.wav')
 sf.write("Test4.wav", x, 22050, subtype='PCM_16')
 '''
+parser = argparse.ArgumentParser()
 parser.add_argument("--in_dir", 
         type=str,
         help="input wave directory")
@@ -27,16 +28,10 @@ parser.add_argument("--input_sr",
         type=int,
         default=48000,
         help="input wave sample rate, default 48khz ")
-parser.add_argument("--dst_sr", 
-        type=int,
-        default=16000,
-        help="output wave sample rate, default 16khz ")
 parser.add_argument("--norm", 
-        action="store_true"
+        action="store_true",
         help="if output wave is normlized between -1 and 1")
-parser = argparse.ArgumentParser()
-parser.parse_args()
-
+args = parser.parse_args()
 input_audio_file = args.in_dir #48KHz
 output_audio_file = args.out_dir #16KHZ
 input_sr = args.input_sr
