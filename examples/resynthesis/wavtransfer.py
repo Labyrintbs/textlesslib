@@ -41,7 +41,9 @@ flag = args.norm
 #SAME PLAYBACK SPEED
 x, sr = librosa.load(input_audio_file, input_sr)
 y = librosa.resample(x, input_sr, dst_sr)
-librosa.output.write_wav(output_audio_file, y, dst_sr, flag)
+#deprice librosa.output.write_wav since not supported since 0.7
+#librosa.output.write_wav(output_audio_file, y, dst_sr, flag)
+sf.write(output_audio_file, y, dst_sr)
 """
 #SLOW PLAYBACK SPEED
 x, sr = librosa.load(audio_file, sr=48000)
