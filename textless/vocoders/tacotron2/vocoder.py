@@ -109,7 +109,8 @@ def synthesize_audio(model, waveglow, denoiser, inp, lab=None, strength=0.0):
             lab.to(model_device) if lab is not None else None,
             ret_has_eos=True,
         )
-        aud = waveglow.infer(mel.float(), sigma=0.666)
+        #TODO change sample sigma to see the results
+        aud = waveglow.infer(mel.float(), sigma=2)
         aud_dn = denoiser(aud.half(), strength=strength).squeeze(1)
     return mel, aud, aud_dn, has_eos
 
