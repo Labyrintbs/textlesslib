@@ -47,6 +47,8 @@ class TacotronVocoder(nn.Module):
             units_str = " ".join([str(x) for x in units.cpu().tolist()])
         else:
             units_str = units
+
+        # change str sequence to tensor, add eos to the fin of sequence
         tts_input = self.tts_dataset.get_tensor(units_str)
         tts_input = tts_input.to(self.device)
         _, _, aud_dn, _ = synthesize_audio(
@@ -110,7 +112,8 @@ def synthesize_audio(model, waveglow, denoiser, inp, lab=None, strength=0.0):
             ret_has_eos=True,
         )
         #TODO change sample sigma to see the results
-        aud = waveglow.infer(mel.float(), sigma=2)
+        #aud : [1, 512000]
+        aud = waveglow.infer(mel.float(), sigma=0.666)
         aud_dn = denoiser(aud.half(), strength=strength).squeeze(1)
     return mel, aud, aud_dn, has_eos
 

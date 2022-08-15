@@ -104,6 +104,10 @@ def main(args):
 
     audio, sample_rate = torchaudio.load(args.input_file)
 
+    print("audio:",audio)
+    print("audio shape: ", audio.size())
+    print("sample rate", sample_rate)
+
     if audio.ndim == 2:
         audio = audio.mean(0)
 
@@ -113,6 +117,8 @@ def main(args):
 
     generated_audio = pipeline(audio, sample_rate)
 
+    print("generated_audio:",generated_audio)
+    print("generated_audio shape: ", generated_audio.size())
     torchaudio.save(
         args.output_file,
         generated_audio.cpu().unsqueeze(0),
