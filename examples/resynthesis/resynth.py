@@ -2,7 +2,7 @@
 
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
-
+import torch
 import torchaudio
 from textless import dispatch_dense_model, dispatch_quantizer
 from textless.data.speech_encoder import SpeechEncoder
@@ -122,10 +122,12 @@ def main(args):
     encoded = encoder(waveform.cuda())
     # encoded is a dict with keys ('dense', 'units', 'durations'). It can also contain 'f0' if SpeechEncoder
     # was initialized with need_f0=True flag.
-    units = encoded[
-        "units"
-    ]  # tensor([71, 12, 57, 12, 57, 12, 57, 12, ...], device='cuda:0', dtype=torch.int32)
+    units = encoded["units"]  # tensor([71, 12, 57, 12, 57, 12, 57, 12, ...], device='cuda:0', dtype=torch.int32)
 
+    # Test random units sequence
+    units = torch.randint(100,(1000,1)).cuda()
+    units = units.squeeze(1)
+    units = units.to(dtype=torch.int32)
     # as with encoder, we can setup vocoder by specifying names of pretrained models
     # or by passing checkpoint paths directly. The dense/quantizer models are not invokes,
     # we just use their names as an index.

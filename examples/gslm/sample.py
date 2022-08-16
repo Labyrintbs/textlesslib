@@ -71,15 +71,23 @@ class GslmPipeline:
         logger.info("Pipeline initialized!")
 
     def __call__(self, raw_audio, sample_rate):
+
+        # maybe_resample methode resample input audio to 16000khz
         raw_audio = self.speech_encoder.maybe_resample(raw_audio, sample_rate)
 
         sample = self.speech_encoder(raw_audio)
         units = sample["units"]
         duration = sample["durations"].sum().item()
+        #prefix_duration : prompt duration
         prefix_duration = self.tokens_framerate * duration
         target_duration = self.tokens_framerate * (
             self.max_length - self.trim_trailing_audio_frames
         )
+        #self.max_length = 1000 * 20ms = 20s ; self.trim_trailing_audio_frames = 200 * 20ms = 4s
+
+        #Test random units with uLM
+        units = torch.randint(100,[1,60]).squeeze(0)
+        units = units.cuda()
 
         unit_str = " ".join(list(map(str, units.tolist())))
         sampled_unit_str = self.sampler.sample([unit_str], **self.sampling_kwargs)[0]
@@ -104,15 +112,24 @@ def main(args):
 
     audio, sample_rate = torchaudio.load(args.input_file)
 
+    print("audio:",audio)
+    print("audio shape: ", audio.size())
+    print("sample rate", sample_rate)
+
+    # squeeze tensor [1, len] -> [52224, ], or maybe fusion different channels
     if audio.ndim == 2:
         audio = audio.mean(0)
 
+    # clip audio with the only prompt length, 3s by default. (note word programme ~ 3s)
     if args.prompt_duration_sec:
         prompt = int(args.prompt_duration_sec * sample_rate)
         audio = audio[:prompt]
 
+    # audio length 48000 now
     generated_audio = pipeline(audio, sample_rate)
 
+    print("generated_audio:",generated_audio)
+    print("generated_audio shape: ", generated_audio.size())
     torchaudio.save(
         args.output_file,
         generated_audio.cpu().unsqueeze(0),
