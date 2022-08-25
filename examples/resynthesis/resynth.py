@@ -42,6 +42,12 @@ def get_args():
         default=100,
         help="Maximal number of decoder steps",
     )
+    parser.add_argument(
+        "--unit_idx",
+        type=int,
+        default=50,
+        help="Test vacabulary units'index",
+    )
 
     args = parser.parse_args()
     return args
@@ -125,8 +131,11 @@ def main(args):
     units = encoded["units"]  # tensor([71, 12, 57, 12, 57, 12, 57, 12, ...], device='cuda:0', dtype=torch.int32)
 
     # Test random units sequence
+    '''
     units = torch.randint(100,(1000,1)).cuda()
     units = units.squeeze(1)
+    '''
+    units = torch.tensor([args.unit_idx for _ in range(100)]).cuda()
     units = units.to(dtype=torch.int32)
     # as with encoder, we can setup vocoder by specifying names of pretrained models
     # or by passing checkpoint paths directly. The dense/quantizer models are not invokes,
