@@ -4,6 +4,7 @@
 # LICENSE file in the root directory of this source tree.
 import torch
 import torchaudio
+import random
 from textless import dispatch_dense_model, dispatch_quantizer
 from textless.data.speech_encoder import SpeechEncoder
 from textless.vocoders.tacotron2.vocoder import TacotronVocoder
@@ -43,10 +44,16 @@ def get_args():
         help="Maximal number of decoder steps",
     )
     parser.add_argument(
-        "--unit_idx",
+        "--repeated_units",
         type=int,
-        default=50,
-        help="Test vacabulary units'index",
+        default=5,
+        help="repeated random units number",
+    )
+    parser.add_argument(
+        "--repeated_times",
+        type=int,
+        default=200,
+        help="repeated times for unit sequence, default repeated_times x units number = 1000",
     )
 
     args = parser.parse_args()
@@ -135,7 +142,11 @@ def main(args):
     units = torch.randint(100,(1000,1)).cuda()
     units = units.squeeze(1)
     '''
-    units = torch.tensor([args.unit_idx for _ in range(100)]).cuda()
+    units = []
+    for i in range(args.repeated_units):
+        units.append(random.randint(0,100))
+
+    units = torch.tensor(units * args.repeated_times).cuda()
     units = units.to(dtype=torch.int32)
     # as with encoder, we can setup vocoder by specifying names of pretrained models
     # or by passing checkpoint paths directly. The dense/quantizer models are not invokes,
